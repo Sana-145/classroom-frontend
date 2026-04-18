@@ -20,7 +20,7 @@ const SubjectsList = () => {
         {field: "department", operator: 'eq' as const, value: selectedDepartment}
     ];
     const searchFilters = searchQuery ? [
-        { field: "name", operator: 'eq' as const, value : searchQuery }
+        { field: "name", operator: 'contains' as const, value : searchQuery }
     ] : [];
 
     const subjectTable = useTable<Subject>({

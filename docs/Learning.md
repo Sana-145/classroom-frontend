@@ -1,4 +1,13 @@
-### New Concepts 
+# 📘 Learning Journey
+
+This document tracks my learning while building this project.
+
+It includes:
+- Concepts learned
+- Mistakes & debugging notes
+- Key takeaways from tutorials
+
+Goal: To reinforce understanding and document growth.
 
 ```
 1.
@@ -5431,4 +5440,230 @@ Flow: endpoint → fetch → mapResponse → getTotalCount
 ?. → safe access (no crash)
 ?? → fallback if null/undefined
 Combined → safe + reliable data extraction
+```
+
+```
+31.
+Q. buildQueryParams: async ({ resource, pagination, filters }) => {
+    const page = pagination?.currentPage ?? 1;
+    const pageSize = pagination?.pageSize ?? 10;
+
+    const params: Record<string, string|number> = { page, limit: pageSize };
+
+    filters?.forEach((filter) => {
+        const field = 'field' in filter ? filter.field : '';
+
+        const value = String(filter.value);
+
+        if(resource === 'subjects') {
+            if(field === 'departments') params.department = value;
+            if(field === 'name' || field === 'code') params.search = value;
+        }
+    })
+
+    return params;
+},
+
+Ans>> 🧠 1. What is this overall?
+
+👉 This function converts:
+
+filters + pagination
+
+👉 into:
+
+URL query params
+🔥 Example Output
+{
+  page: 2,
+  limit: 10,
+  search: "db",
+  department: "cse"
+}
+
+👉 Final API call:
+
+/subjects?page=2&limit=10&search=db&department=cse
+🔹 2. Function signature
+async ({ resource, pagination, filters })
+
+👉 Input comes from frontend framework (like Refine)
+
+🧠 Parameters:
+🔸 resource
+"subjects"
+
+👉 Which API endpoint
+
+🔸 pagination
+{
+  currentPage: 2,
+  pageSize: 10
+}
+🔸 filters
+[
+  { field: "name", value: "db" },
+  { field: "departments", value: "cse" }
+]
+🔹 3. Pagination handling
+const page = pagination?.currentPage ?? 1;
+
+👉 Meaning:
+
+If page exists → use it
+Else → default = 1
+const pageSize = pagination?.pageSize ?? 10;
+
+👉 Meaning:
+
+If pageSize exists → use it
+Else → default = 10
+🔹 4. Create params object
+const params: Record<string, string|number> = { page, limit: pageSize };
+🧠 What is Record<string, string|number>?
+
+👉 TypeScript type:
+
+{
+  key: string → value: string or number
+}
+👉 Initial params:
+{
+  page: 2,
+  limit: 10
+}
+🔹 5. Loop through filters
+filters?.forEach((filter) => {
+
+👉 Loop over all filters
+
+⚠️ filters?.
+
+👉 If filters exist → run
+👉 Else → skip safely
+
+🔹 6. Extract field
+const field = 'field' in filter ? filter.field : '';
+🧠 Why this?
+
+👉 Some filter objects may not have field
+
+So:
+
+If exists → use it
+Else → empty string
+🔹 7. Extract value
+const value = String(filter.value);
+
+👉 Convert value to string
+
+Example:
+
+123 → "123"
+true → "true"
+🔹 8. Resource-specific logic
+if(resource === 'subjects') {
+
+👉 Apply this logic ONLY for subjects API
+
+🔹 9. Department filter
+if(field === 'departments') params.department = value;
+🧠 Meaning:
+
+Frontend filter:
+
+{ field: "departments", value: "cse" }
+
+👉 Converted to:
+
+params.department = "cse"
+
+👉 Final URL:
+
+?department=cse
+🔹 10. Search filter
+if(field === 'name' || field === 'code') params.search = value;
+🧠 Meaning:
+
+Frontend filters:
+
+{ field: "name", value: "db" }
+
+OR
+
+{ field: "code", value: "cs101" }
+
+👉 Both map to:
+
+params.search = value
+
+👉 Final URL:
+
+?search=db
+🔥 Important Design Choice
+
+👉 Backend supports:
+
+search → name OR code
+
+👉 So frontend merges both into one param
+
+🔹 11. Return params
+return params;
+
+👉 Final object:
+
+{
+  page: 2,
+  limit: 10,
+  search: "db",
+  department: "cse"
+}
+
+👉 Converted to:
+
+?page=2&limit=10&search=db&department=cse
+🧠 FULL FLOW (VERY IMPORTANT)
+Step 1:
+
+User applies filter in UI
+
+Step 2:
+
+Frontend creates:
+
+filters = [...]
+Step 3:
+
+buildQueryParams() runs
+
+Step 4:
+
+Params created
+
+Step 5:
+
+API call:
+
+GET /subjects?search=db&department=cse
+🔥 Mental Model
+UI filters → params → URL → backend query
+🚀 Final Summary (Quick Revision)
+Converts frontend filters → backend query params
+Handles pagination (page, limit)
+Maps:
+departments → department
+name/code → search
+Uses ?? for defaults
+Returns object → converted to URL
+🔥 Pro Insight (VERY IMPORTANT FOR YOU)
+
+👉 This layer is called:
+
+"API adapter layer"
+
+👉 It decouples:
+
+frontend UI
+backend API
 ```
