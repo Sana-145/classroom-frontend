@@ -6769,3 +6769,97 @@ setTimeout(() => {
   console.log(countRef.current); // ✅ Always the latest value
 }, 3000);
 ```
+
+```
+38.
+Q. here const UploadWidget = ({ value = null, onChange, disabled = false, }: UploadWidgetProps) ---> what is passed or recieved here is called props or arguments? and what is here is called --- <UploadWidget value={bannerValue} onChange={(file) => setBannerImage(file, field)} />
+
+Ans>> Good question — this is a core React concept, and getting the terminology right will help you avoid confusion later.
+
+🧠 1. In your component definition
+const UploadWidget = ({
+  value = null,
+  onChange,
+  disabled = false,
+}: UploadWidgetProps)
+
+👉 This is called props (properties)
+
+💡 Explanation
+UploadWidget is a React component (basically a function)
+The object it receives = props
+You are destructuring props
+
+So internally it’s like:
+
+function UploadWidget(props: UploadWidgetProps) {
+  const { value, onChange, disabled } = props;
+}
+
+👉 These are:
+
+props (React term)
+technically also function parameters (JS term)
+🧠 2. At the usage site
+<UploadWidget
+  value={bannerValue}
+  onChange={(file) => setBannerImage(file, field)}
+/>
+
+👉 This is called:
+
+✅ Passing props
+value → prop
+onChange → prop
+🔥 Important distinction
+Concept	Name
+Inside component (value, onChange)	props
+While calling component (<UploadWidget ... />)	passing props
+In pure JS function terms	arguments
+⚠️ Where confusion comes from
+
+Because React component = function
+
+So technically:
+
+UploadWidget(props)
+
+👉 JS says: arguments
+👉 React says: props
+
+🎯 Clear mental model
+👉 Think like this:
+<UploadWidget ... />
+
+➡️ “I am passing props”
+
+const UploadWidget = (props) => {}
+
+➡️ “I am receiving props”
+
+🧠 Bonus (important for you)
+This part:
+onChange={(file) => setBannerImage(file, field)}
+
+👉 Here:
+
+file = argument of callback function
+onChange = prop
+🚀 FINAL SUMMARY (your style)
+Inside component → props
+In JSX → passing props
+Technically → function arguments
+In callbacks → arguments
+💬 Real Talk
+
+If you say in interview:
+
+“Props are just function parameters passed to React components”
+
+👉 That’s a clean, correct explanation
+```
+
+```
+39.
+Q. 
+```
